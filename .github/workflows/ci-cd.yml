@@ -33,3 +33,11 @@ jobs:
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Create Azure Web App if not exists
+      run: |
+        az webapp show --name ${{ secrets.WEBAPP_NAME }} || az webapp create --name ${{ secrets.WEBAPP_NAME }} --plan ${{ secrets.AZURE_PLAN }} --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --deployment-container-image-name ${{ secrets.ACR_NAME }}.azurecr.io/fastapi-cicd:latest
+
+    - name: Deploy to Azure Web App
+      run: |
+        az webapp config container set --name ${{ secrets.WEBAPP_NAME }} --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --docker-custom-image-name ${{ secrets.ACR_NAME }}.azurecr.io/fastapi-cicd:latest
